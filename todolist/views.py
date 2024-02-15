@@ -42,6 +42,7 @@ def update_user_by_id(request, user_id):
         user.Email = data.get('Email', user.Email)
         user.Phone = data.get('Phone', user.Phone)
         user.Post = data.get('Post', user.Post)
+        user.Picture = data.get('Picture', user.Picture)
 
 
         user.save()
