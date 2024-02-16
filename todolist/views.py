@@ -34,7 +34,14 @@ def get_user_by_id(request, user_id):
 def update_user_by_id(request, user_id):
     if request.method == 'PUT':
         user = get_object_or_404(User, id=user_id)
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+
+        email = data.get('Email', user.Email)
+        if User.objects.exclude(id=user_id).filter(Email=email).exists():
+            return JsonResponse({'error': 'Email already exists'}, status=400)
         
         # Update the user object based on the data received in the request body
         user.Name = data.get('Name', user.Name)
@@ -43,10 +50,10 @@ def update_user_by_id(request, user_id):
         user.Phone = data.get('Phone', user.Phone)
         user.Post = data.get('Post', user.Post)
         user.Picture = data.get('Picture', user.Picture)
-
+        
 
         user.save()
         
         return JsonResponse({'success': True, 'message': 'User updated successfully'})
     else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        return JsonResponse({'error': 'Invalid request method'}, status=400)    
